@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "jsql",
+  "patterns": [
+    {
+      "include": "source.js"
+    },
+    {
+      "name": "meta.section.sqlTaggedTemplate",
+      "contentName": "markup.other.section.example",
+      "begin": "sql`",
+      "beginCaptures": {
+        "1": { "name": "keyword.function" },
+        "2": { "name": "punctuation.definition.function.example" }
+      },
+      "end": "`",
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.end.example" }
+      },
+      "patterns": [
+        {
+          "include": "source.sql"
+        }
+      ]
+    }
+  ],
+
+  "scopeName": "source.jsql"
+}

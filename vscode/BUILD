@@ -29,6 +29,7 @@ sh_binary(
         ":language-configuration.json",
         ":package.json",
         ":sqlx.grammar.json",
+        ":jsql.grammar.json",
         ":vscode-sources",
     ],
 )
@@ -43,6 +44,7 @@ sh_binary(
         ":README.md",
         ":LICENSE",
         ":sqlx.grammar.json",
+        ":jsql.grammar.json",
         ":vscode-sources",
     ],
 )

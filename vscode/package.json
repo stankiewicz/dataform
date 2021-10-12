@@ -38,6 +38,13 @@
           ".sqlx"
         ],
         "configuration": "language-configuration.json"
+      },
+      {
+        "id": "jsql",
+        "extensions": [
+          ".js"
+        ],
+        "configuration": "language-configuration.json"
       }
     ],
     "grammars": [
@@ -45,6 +52,11 @@
         "language": "sqlx",
         "scopeName": "source.sqlx",
         "path": "sqlx.grammar.json"
+      },
+      {
+        "language": "jsql",
+        "scopeName": "source.jsql",
+        "path": "jsql.grammar.json"
       }
     ]
   }
