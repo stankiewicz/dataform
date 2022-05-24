@@ -32,8 +32,7 @@ export class BigQueryAdapter extends Adapter implements IAdapter {
     if (table.type === "incremental") {
       if (!this.shouldWriteIncrementally(runConfig, tableMetadata)) {
         tasks.add(Task.statement(this.createOrReplace(table)));
-      } else if (table.uniqueKey && table.uniqueKey.length > 0 && table.strategy==="merge"){
-        // merge statement based on uniqueKey
+      } else if (table.uniqueKey && table.uniqueKey.length > 0 && (table.strategy===null || table.strategy==="merge")){
         tasks.add(
           Task.statement(
             this.mergeInto(
@@ -47,7 +46,6 @@ export class BigQueryAdapter extends Adapter implements IAdapter {
         );
       } else {
         if (table.strategy==="insert_overwrite"){
-          // run DELETE DML
           if(table.overwriteFilter){
             tasks.add(Task.statement(this.deleteWithStaticFilter(table.target,table.overwriteFilter)));
           }else {
@@ -55,7 +53,6 @@ export class BigQueryAdapter extends Adapter implements IAdapter {
               this.where(table.incrementalQuery || table.query, table.where))));
           }
         }
-        // insert
         tasks.add(
             Task.statement(
               this.insertInto(

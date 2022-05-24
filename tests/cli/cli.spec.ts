@@ -27,7 +27,7 @@ suite(__filename, () => {
         projectDir,
         "--skip-install",
         "--default-database",
-        "dataform-integration-tests"
+        "radoslaws-playground"
       ])
     );
 
@@ -48,8 +48,8 @@ suite(__filename, () => {
     fs.ensureFileSync(filePath);
     fs.writeFileSync(
       filePath,
-      `
-config { type: "table" }
+      `config { type: "table", schema: "\${dataform.projectConfig.vars.testVar1}" }
+
 select 1 as \${dataform.projectConfig.vars.testVar2}
 `
     );
@@ -72,14 +72,14 @@ select 1 as \${dataform.projectConfig.vars.testVar2}
         {
           type: "table",
           target: {
-            database: "dataform-integration-tests",
+            database: "radoslaws-playground",
             schema: "dataform",
             name: "example"
           },
           canonicalTarget: {
             schema: "dataform",
             name: "example",
-            database: "dataform-integration-tests"
+            database: "radoslaws-playground"
           },
           query: "\n\nselect 1 as testValue2\n",
           disabled: false,
@@ -90,7 +90,7 @@ select 1 as \${dataform.projectConfig.vars.testVar2}
         warehouse: "bigquery",
         defaultSchema: "dataform",
         assertionSchema: "dataform_assertions",
-        defaultDatabase: "dataform-integration-tests",
+        defaultDatabase: "radoslaws-playground",
         useRunCache: false,
         vars: {
           testVar1: "testValue1",
@@ -101,7 +101,7 @@ select 1 as \${dataform.projectConfig.vars.testVar2}
       dataformCoreVersion: version,
       targets: [
         {
-          database: "dataform-integration-tests",
+          database: "radoslaws-playground",
           schema: "dataform",
           name: "example"
         }
@@ -131,14 +131,14 @@ select 1 as \${dataform.projectConfig.vars.testVar2}
           hermeticity: "HERMETIC",
           tableType: "table",
           target: {
-            database: "dataform-integration-tests",
+            database: "radoslaws-playground",
             name: "example",
-            schema: "dataform"
+            schema: "testValue1"
           },
           tasks: [
             {
               statement:
-                "create or replace table `dataform-integration-tests.dataform.example` as \n\nselect 1 as testValue2",
+                "create or replace table `radoslaws-playground.dataform.example` as \n\nselect 1 as testValue2",
               type: "statement"
             }
           ],
@@ -147,7 +147,7 @@ select 1 as \${dataform.projectConfig.vars.testVar2}
       ],
       projectConfig: {
         assertionSchema: "dataform_assertions",
-        defaultDatabase: "dataform-integration-tests",
+        defaultDatabase: "radoslaws-playground",
         defaultSchema: "dataform",
         useRunCache: false,
         warehouse: "bigquery",

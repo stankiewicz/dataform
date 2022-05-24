@@ -426,6 +426,181 @@ suite("@dataform/api", () => {
       );
     });
 
+    test("bigquery_incremental_insert_overwrite_custom_overwrite_filter", () => {
+      const graph = dataform.CompiledGraph.create({
+        projectConfig: { warehouse: "bigquery", defaultDatabase: "deeb" },
+        tables: [
+          {
+            target: {
+              schema: "schema",
+              name: "incremental"
+            },
+            type: "incremental",
+            strategy: "insert_overwrite",
+            overwriteFilter: "1=1",
+            query: "select 1 as test",
+            where: "true"
+          }
+        ]
+      });
+      const state = dataform.WarehouseState.create({
+        tables: [
+          {
+            target: {
+              schema: "schema",
+              name: "incremental"
+            },
+            type: dataform.TableMetadata.Type.TABLE,
+            fields: [
+              {
+                name: "existing_field"
+              }
+            ]
+          }
+        ]
+      });
+      const executionGraph = new Builder(graph, {}, state).build();
+      expect(
+        cleanSql(
+          executionGraph.actions.filter(
+            n => targetAsReadableString(n.target) === "schema.incremental"
+          )[0].tasks[0].statement
+        )
+      ).equals(
+        cleanSql(
+          `delete from \`deeb.schema.incremental\` t
+             where 1=1 ; insert into \`deeb.schema.incremental\` (\`existing_field\`)
+             select \`existing_field\` from (
+               select * from (select 1 as test) as subquery
+               where true
+             ) as insertions`
+        )
+      );
+    });
+
+    // test("bigquery_incremental_insert_overwrite_custom_overwrite_filter_date", () => {
+    //   const graph = dataform.CompiledGraph.create({
+    //     projectConfig: { warehouse: "bigquery", defaultDatabase: "deeb", vars : {execution_date:"2022-01-01"} },
+    //     tables: [
+    //       {
+    //         target: {
+    //           schema: "schema",
+    //           name: "incremental"
+    //         },
+    //         type: "incremental",
+    //         strategy: "insert_overwrite",
+    //         query: "select 1 as test, day as ReportDay",
+    //         overwriteFilter: "ReportDay = '${dataform.projectConfig.vars.execution_date}'",
+    //         where: "true",
+    //         bigquery: {
+    //           partitionBy: "DATE(ReportDay)"
+    //       }
+          
+    //       }
+    //     ]
+    //   });
+    //   const state = dataform.WarehouseState.create({
+    //     tables: [
+    //       {
+    //         target: {
+    //           schema: "schema",
+    //           name: "incremental"
+    //         },
+    //         type: dataform.TableMetadata.Type.TABLE,
+    //         fields: [
+    //           {
+    //             name: "existing_field"
+    //           }
+    //         ]
+    //       }
+    //     ]
+    //   });
+    //   const executionGraph = new Builder(graph, {}, state).build();
+    //   expect(
+    //     cleanSql(
+    //       executionGraph.actions.filter(
+    //         n => targetAsReadableString(n.target) === "schema.incremental"
+    //       )[0].tasks[0].statement
+    //     )
+    //   ).equals(
+    //     cleanSql(
+    //       `delete from \`deeb.schema.incremental\` t where date(reportday) in (
+    //         select date(reportday) from (
+    //           select * from (
+    //             select 1 as test, day as reportday
+    //             ) 
+    //             as subquery where true
+    //           )
+    //         ) ; insert into \`deeb.schema.incremental\` (\`existing_field\`)
+    //          select \`existing_field\` from (
+    //            select * from (select 1 as test, day as reportday) as subquery
+    //            where true
+    //          ) as insertions`
+    //     )
+    //   );
+    // });
+
+    // test("bigquery_incremental_insert_overwrite_default_overwrite_filter", () => {
+    //   const graph = dataform.CompiledGraph.create({
+    //     projectConfig: { warehouse: "bigquery", defaultDatabase: "deeb" },
+    //     tables: [
+    //       {
+    //         target: {
+    //           schema: "schema",
+    //           name: "incremental"
+    //         },
+    //         type: "incremental",
+    //         strategy: "insert_overwrite",
+    //         query: "select 1 as test, day as ReportDay",
+    //         where: "true",
+    //         bigquery: {
+    //           partitionBy: "DATE(ReportDay)"
+    //       }
+          
+    //       }
+    //     ]
+    //   });
+    //   const state = dataform.WarehouseState.create({
+    //     tables: [
+    //       {
+    //         target: {
+    //           schema: "schema",
+    //           name: "incremental"
+    //         },
+    //         type: dataform.TableMetadata.Type.TABLE,
+    //         fields: [
+    //           {
+    //             name: "existing_field"
+    //           }
+    //         ]
+    //       }
+    //     ]
+    //   });
+    //   const executionGraph = new Builder(graph, {}, state).build();
+    //   expect(
+    //     cleanSql(
+    //       executionGraph.actions.filter(
+    //         n => targetAsReadableString(n.target) === "schema.incremental"
+    //       )[0].tasks[0].statement
+    //     )
+    //   ).equals(
+    //     cleanSql(
+    //       `delete from \`deeb.schema.incremental\` t where date(reportday) in (
+    //         select date(reportday) from (
+    //           select * from (
+    //             select 1 as test, day as reportday
+    //             ) 
+    //             as subquery where true
+    //           )
+    //         ) ; insert into \`deeb.schema.incremental\` (\`existing_field\`)
+    //          select \`existing_field\` from (
+    //            select * from (select 1 as test, day as reportday) as subquery
+    //            where true
+    //          ) as insertions`
+    //     )
+    //   );
+    // });
+
     test("bigquery_materialized", () => {
       const testGraph: dataform.ICompiledGraph = dataform.CompiledGraph.create({
         projectConfig: { warehouse: "bigquery", defaultDatabase: "deeb" },
